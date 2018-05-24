@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>chat app node.js</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.1.js"></script>
+  <style>
+  * {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Verdana;
+  }
+  ul {
+    list-style-type: none;
+    padding: 20px;
+    background: #000;
+    color: white;
+  }
+  #controls {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    padding: 20px;
+    display: block;
+    width: 100%;
+  }
+  #controls #msj {
+    float: left;
+    width: 80%;
+    display: block;
+    padding: 20px;
+  }
+  #controls #btn {
+    float: right;
+    padding: 20px;
+  }
+  #controls #channel {
+    display: block;
+    width: 100%;
+    font-size: 2em;
+  }
+  </style>
+</head>
+<body>
+  <script>
+    <!-- サーバー側とつなぐため -->
+    var socket = io();
+
+    $(function() {
+      <!-- 送信されたときの処理  -->
+      $('form').submit(function() {
+        <!-- メッセージを取得 -->
+        var mensaje = $('#msj').val();
+
+        <!-- メッセージがなければ終了 -->
+        if (mensaje === '') return false;
+
+        <!-- メッセージを送信 -->
+        socket.emit('message', mensaje);
+
+        <!-- メッセージの中身を空にしえフォーカスする -->
+        $('#msj').val('').focus();
+        return false;
+    });
+
+     <!-- チャンネルを変えた時の処理 -->
+     $('#channel').on('change', function() {
+       <!-- チャンネル変更する -->
+       socket.emit('change channel', $('#channel').val());
+     });
+   });
+
+    <!-- メッセージが送信された時の処理 -->
+    socket.on('message', function(msj, id) {
+      <!-- 取得したメッセージをulに追加 -->
+      $('#message').append($('<li>').text(id + " : " + msj));
+    });
+
+    <!-- チャンネルが変わった時の処理 -->
+    socket.on('change channel', function(channel) {
+      <!-- チャンネルが変わったことをメッセージで表示 -->
+      $('#message').html('').append($('<li>').text('チャンネルが ' + channel + 'に変更されました!'));
+    });
+  </script>
+  <ul id="message"></ul>
+  <div id="controls">
+    <form action="">
+    <select name="channel" id="channel">
+      <option value="channel-a">Channel-A</option>
+      <option value="channel-b">Channel-B</option>
+    </select>
+    <input type="text" id="msj" placeholder="メッセージを入力してください...">
+    <input type="submit" id="btn" value="Enviar">
+    </form>
+ </div>
+</body>
+</html>
