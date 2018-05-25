@@ -1,18 +1,17 @@
-zum Chat auszuführen
-von Sota
+um Chat auszuführen
 
--installieren Sie Node.js in iheren Rechner
+-installieren Node.js in Ihren Rechner
 
 -Öffen Command Prompt(Win) oder Console(Mac)
 
--geh nach "chat01" Ordner 
+-Gehen zum "chat01" Ordner 
  $cd chat01
 
--installieren "express"
+-Installieren "express"
  $npm install express
 
--installieren "socket.io"
+-Installieren "socket.io"
  $npm install socket.io
 
--chat ausführen
+-Chat ausführen
  $node chat.js
