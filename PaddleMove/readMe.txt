@@ -1,7 +1,7 @@
 Written by Sota
 
 These codes are the test, to get a Objects(paddle) synchron moved by multiple users.
-i.e.When a user moves his paddle in his browser, paddles in other users broser move accordingly.
+i.e.When a user moves his paddle in his browser, paddles in other users' browser move accordingly.
  
 -----------------------------------------------------	
 
