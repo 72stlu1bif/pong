@@ -15,6 +15,20 @@ Then do the following steps
 -install socket.io
     npm install socket.io
 
+-run install command
+    npm install
+
+-run Node
+    node server.js
+
+-open browser, type in url
+    localhost:3333
+
+
+-----------------------------------------------------
+if it doesn't work,try following steps
+-----------------------------------------------------
+
 -install express
     npm install express
 
@@ -31,14 +45,11 @@ Then do the following steps
     "author": "dev"
 }
 
--run install command
-    npm install
-
 -run Node
     node server.js
 
 -open browser, type in url
     localhost:3333
-
+ 
 
 <End>
