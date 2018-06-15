@@ -14,8 +14,12 @@ app.get("/client.html", function (req, res) {
     res.sendFile(__dirname + "/client.html");
 });
 
-var server = http.createServer(app).listen(3333);
-console.log('Server running on port 3333!');
+//var server = http.createServer(app).listen(3000);
+var POST = process.env.PORT||8080;
+var server = http.createServer(app).listen(POST, function() {
+  console.log('start connection', POST);
+});
+console.log('Server running on port 3000!');
 
 //Socket&Game
 var io = socketio(server);
