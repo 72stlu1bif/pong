@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<!--https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript-->
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <title>Gamedev Canvas Workshop</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styletwo.css">
+    <style>
+    </style>
+</head>
+<body>
+<canvas id="myCanvas" width="480" height="320"></canvas>
+<div id="results"></div>
+<div id="pong_menu"
+<div align="center">
+  <br><input type="button" class="btn btn-primary" value="Start / Reload" onclick="btnStart()"></input>
+
+<div id="back_menu" align="center"> <br>
+<a href="/index.html" class="previous">&laquo; zurück zum Menü</a> </div>
+
+
+<div class="form-style-5">
+<form id="name-form" action ="datenVerarbeitung.php" method="get">
+<fieldset>
+<legend></legend>
+<input type="text" name="name" placeholder="Name">
+</fieldset>
+<input type="submit" value="Bestätige" />
+</form>
+</div>
+
+<script>
+const socket = io(); //to communicate with server via socket.io
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+var ballRadius = 10;
+var x = canvas.width/2;
+var y = canvas.height-30;
+var dx = 2;
+var dy = -2;
+var paddleHeight = 10;
+var paddleWidth = 75;
+var paddleX = (canvas.width-paddleWidth)/2;
+var rightPressed = false;
+var leftPressed = false;
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(e) {
+    if(e.keyCode == 39) {
+        socket.emit("rightKeyDown");
+        socket.on('moveRight', function () {
+           rightPressed = true;
+        });
+    }
+    else if(e.keyCode == 37) {
+        socket.emit("leftKeyDown");
+        socket.on('moveLeft', function () {
+           leftPressed = true;
+        });
+    }
+
+}
+function keyUpHandler(e) {
+    if(e.keyCode == 39) {
+        socket.emit("rightKeyUp");
+        socket.on('stopMoveRight', function () {
+           rightPressed = false;
+        });
+    }
+    else if(e.keyCode == 37) {
+        socket.emit("leftKeyUp");
+        socket.on('stopMoveLeft', function () {
+           leftPressed = false;
+        });
+    }
+}
+
+function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+function drawPaddle() {
+    ctx.beginPath();
+    ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBall();
+    drawPaddle();
+    //ball reflect on edges
+    if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+    }
+    if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+        dy = -dy;
+    }
+
+    //move paddle
+    if(rightPressed && paddleX < canvas.width-paddleWidth) {
+        paddleX += 7;
+        socket.emit("paddleMoveRight",{ posX: paddleX });
+    }
+    else if(leftPressed && paddleX > 0) {
+        paddleX -= 7;
+        socket.emit("paddleMoveLeft",{ posX: paddleX });
+    }
+
+    x += dx;
+    y += dy;
+
+}
+
+//Main method
+window.onload = function() {
+  socket.emit("get");
+  socket.on('set', function (data) {
+     paddleX = data.position
+  });
+};
+setInterval(draw, 10);
+
+//Start&Reload Button
+function btnStart(){
+    socket.emit("reload1");
+}
+socket.on('reload2', function () {
+   //initialise ball position & direction
+   x = canvas.width/2;
+   y = canvas.height-30;
+   dx = 2;
+   dy = -2;
+});
+</script>
+
+</body>
+</html>
