@@ -1,0 +1,19 @@
+{
+  "name": "indexpageandgame01",
+  "version": "1.0.0",
+  "description": "pong app",
+  "main": "app.js",
+  "dependencies": {
+    "express": "*",
+    "socket.io": "*"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "10.0.0"
+  },
+  "author": "team1",
+  "license": "ISC"
+}
