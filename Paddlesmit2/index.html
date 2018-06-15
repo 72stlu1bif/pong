@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<!--https://developer.mozilla.org/en-US/docs/Games/Tutorials/2D_Breakout_game_pure_JavaScript-->
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <title>Gamedev Canvas Workshop</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    	canvas { background: #eee; display: block; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas" width="480" height="620"></canvas>
+<div id="results"></div>
+
+<script>
+const socket = io(); //to communicate with server via socket.io
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+var ballRadius = 10;
+var x = canvas.width/2;
+var y = canvas.height-30;
+var dx = 2;
+var dy = -2;
+
+//paddle
+var paddleHeight = 10;
+var paddleWidth = 75;
+var paddleX = (canvas.width-paddleWidth)/2;
+var rightPressed = false;
+var leftPressed = false;
+
+//paddle2
+var rightPressed2 = false;
+var leftPressed2 = false;
+var paddleHeight2 = 10;
+var paddleWidth2 = 75;
+var paddleX2 = (canvas.width-paddleWidth2)/2;
+
+
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+document.addEventListener("keydown", keyDownHandler2, false);
+document.addEventListener("keyup", keyUpHandler2, false);
+
+function keyDownHandler(e) {
+    if(e.keyCode == 39) {
+        socket.emit("rightKeyDown");
+        socket.on('moveRight', function () {
+           rightPressed = true;
+        });
+    }
+    else if(e.keyCode == 37) {
+        socket.emit("leftKeyDown");
+        socket.on('moveLeft', function () {
+           leftPressed = true;
+        });
+    }
+
+}
+function keyUpHandler(e) {
+    if(e.keyCode == 39) {
+        socket.emit("rightKeyUp");
+        socket.on('stopMoveRight', function () {
+           rightPressed = false;
+        });
+    }
+
+    else if(e.keyCode == 37) {
+        socket.emit("leftKeyUp");
+        socket.on('stopMoveLeft', function () {
+           leftPressed = false;
+        });
+    }
+}
+function keyDownHandler2(e) {
+    if(e.keyCode == 68) {
+        socket.emit("rightKeyDown2");
+        socket.on('moveRight2', function () {
+           rightPressed2 = true;
+        });
+    }
+    else if(e.keyCode == 65) {
+        socket.emit("leftKeyDown2");
+        socket.on('moveLeft2', function () {
+           leftPressed2 = true;
+        });
+    }
+
+}
+function keyUpHandler2(e) {
+    if(e.keyCode == 68) {
+        socket.emit("rightKeyUp2");
+        socket.on('stopMoveRight2', function () {
+           rightPressed2 = false;
+        });
+    }
+    else if(e.keyCode == 65) {
+        socket.emit("leftKeyUp2");
+        socket.on('stopMoveLeft2', function () {
+           leftPressed2 = false;
+        });
+    }
+}
+
+function drawBall() {
+    ctx.beginPath();
+    ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+function drawPaddle() {
+    ctx.beginPath();
+    ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = "#0095DD";
+    ctx.fill();
+    ctx.closePath();
+}
+function drawPaddle2() {
+    ctx.beginPath();
+    ctx.rect(paddleX2, 0, paddleWidth2, paddleHeight2);
+    ctx.fillStyle = "#DD4800";
+    ctx.fill();
+    ctx.closePath();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBall();
+    drawPaddle();
+    drawPaddle2();
+    //ball reflect on edges
+    if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+    }
+    if(y + dy > canvas.height-ballRadius || y + dy < ballRadius) {
+        dy = -dy;
+    }
+
+    //move paddle
+    if(rightPressed && paddleX < canvas.width-paddleWidth) {
+        paddleX += 5;
+        socket.emit("paddleMoveRight",{ posX: paddleX });
+    }
+    if(leftPressed && paddleX > 0) {
+        paddleX -= 5;
+        socket.emit("paddleMoveLeft",{ posX: paddleX });
+    }
+    if(rightPressed && paddleX < canvas.width-paddleWidth) {
+        paddleX += 5;
+        socket.emit("paddleMoveRight",{ posX: paddleX });
+    }
+    if(leftPressed && paddleX > 0) {
+        paddleX -= 5;
+        socket.emit("paddleMoveLeft",{ posX: paddleX });
+    }
+
+
+
+    if(rightPressed2 && paddleX2 < canvas.width-paddleWidth2) {
+        paddleX2 += 5;
+        socket.emit("paddleMoveRight2",{ posX: paddleX2 });
+    }
+    if(leftPressed2 && paddleX2 > 0) {
+        paddleX2 -= 5;
+        socket.emit("paddleMoveLeft2",{ posX: paddleX2 });
+    }
+    if(rightPressed2 && paddleX2 < canvas.width-paddleWidth2) {
+        paddleX2 += 5;
+        socket.emit("paddleMoveRight2",{ posX: paddleX2 });
+    }
+    if(leftPressed2 && paddleX2 > 0) {
+        paddleX2 -= 5;
+        socket.emit("paddleMoveLeft2",{ posX: paddleX2 });
+    }
+
+    x += dx;
+    y += dy;
+
+}
+
+//Main method
+//synchronise paddle-coordinate
+window.onload = function() {
+  socket.emit("get");
+  socket.on('set', function (data) {
+     paddleX = data.position
+  });
+  socket.emit("get2");
+  socket.on('set2', function (data) {
+     paddleX = data.position
+  });
+};
+
+setInterval(draw, 10);
+
+</script>
+
+</body>
+</html>
